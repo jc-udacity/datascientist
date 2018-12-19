@@ -4,11 +4,13 @@ import matplotlib.pyplot as plt
 # Setting the random seed, feel free to change it and see different solutions.
 np.random.seed(42)
 
-data = pd.read_csv("2.3.9_data.csv")
-X = data.values[:,:-1]
+data = pd.read_csv("2.3.9_data.csv", names = ['x1', 'x2', 'y'])
+X = data[['x1', 'x2']].values
 print(np.shape(X))
-Y = data.values[:,-1]
-print(np.shape(Y))
+#print(X)
+y = data[['y']].values
+print(np.shape(y))
+#print(y)
 
 def stepFunction(t):
     if t >= 0:
@@ -55,8 +57,24 @@ def trainPerceptronAlgorithm(X, y, learn_rate = 0.01, num_epochs = 25):
         boundary_lines.append((-W[0]/W[1], -b/W[1]))
     return boundary_lines
 
+regression_coef = trainPerceptronAlgorithm(X, y, 0.01, 50)
 
-boundaries = trainPerceptronAlgorithm(X, Y, learn_rate = 0.01, num_epochs = 2)
-for boundary in boundaries:
-    x1, x2 = boundary
-    print (x1, x2)
+plt.figure()
+X_min = X[:,0].min()
+X_max = X[:,0].max()
+Y_min = X[:,1].min()
+Y_max = X[:,1].max()
+print(X_min, X_max, Y_min, Y_max)
+counter = len(regression_coef)
+for W, b in regression_coef:
+    counter -= 1
+    color = [1 - 0.92 ** counter for _ in range(3)]
+    plt.plot([X_min, X_max],[X_min * W + b, X_max * W + b], color = color)
+
+for i in range(len(y)):
+    if y[i] == 0:
+        plt.scatter(X[i,0], X[i,1], c = 'blue', zorder = 3)
+    else:
+        plt.scatter(X[i,0], X[i,1], c = 'red', zorder = 3)
+
+plt.show()
