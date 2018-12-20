@@ -1,44 +1,41 @@
-import math
 import pandas as pd
+import numpy as np
 
 data = pd.read_csv("ml-bugs.csv")
-#print(data)
 
-# determine entropy of parent
-# retrieve the number of lobug and Mobug when color = brown
-# they are n and m
-brown = data['Color'] == 'Brown'
-brown_insects = data[brown]
+def getEntropy(m, n):
+    return (-m/(m+n))*np.log2(m/(n+m)) - (n/(m+n))*np.log2(n/(n+m))
 
-m = len(brown_insects[data['Species']=='Mobug'])
-n = len(brown_insects[data['Species']=='Lobug'])
-entropy_parent = (-m/(n+m))*math.log(m/(n+m),2) - (n/(m+n))*math.log(n/(n+m),2)
-print('parent entropy =', entropy_parent)
+species = data['Species'].value_counts()
+parent_entropy = getEntropy(species['Mobug'], species['Lobug'])
 
-# calculate entropy for the 2 childs
-# one child is color brown
-# second child is color Blue and Green
-#nb_colors = data.Color.value_counts()
+list_color = ['Brown', 'Blue', 'Green']
+list_length = [17.0, 20.0]
+info_gain = []
 
+for color in list_color:
+    b = data['Color'] == color
+    entropy_child1 = getEntropy(data[b]['Species'].value_counts()['Mobug'],
+                                data[b]['Species'].value_counts()['Lobug'])
+    notb = data['Color'] != color
+    entropy_child2 = getEntropy(data[notb]['Species'].value_counts()['Mobug'],
+                                data[notb]['Species'].value_counts()['Lobug'])
+    m = len(data[b])
+    n = len(data[notb])
+    entropy = parent_entropy - m/(m+n)*entropy_child1 - n/(m+n)*entropy_child2
+    info_gain.append((color, entropy))
 
+for length in list_length:
+    b = data['Length (mm)'] < length
+    entropy_child1 = getEntropy(data[b]['Species'].value_counts()['Mobug'],
+                                data[b]['Species'].value_counts()['Lobug'])
+    notb = data['Length (mm)'] >= length
+    entropy_child2 = getEntropy(data[notb]['Species'].value_counts()['Mobug'],
+                                data[notb]['Species'].value_counts()['Lobug'])
+    m = len(data[b])
+    n = len(data[notb])
+    entropy = parent_entropy - m/(m+n)*entropy_child1 - n/(m+n)*entropy_child2
+    info_gain.append((length, entropy))
 
-for i in range(len(nb_colors)):
-    p = nb_colors[i] / sum(nb_colors)
-    entropy_parent -= p * math.log(p,2)
-for i in nb_colors.index:
-    color, nb_occur =  i, nb_colors[i]
-    entropy.append((color, nb_occur/sum(nb_colors)))
-
-
-
-print(entropy)
-e_color = 0
-"""
-# determine entropy of childs for color = Brown
-
-
-
-# determine entropy of child length < 17.0 mm
-
-
-# determine entropy of child length < 20.0 mm
+for info in info_gain:
+    print(info)
