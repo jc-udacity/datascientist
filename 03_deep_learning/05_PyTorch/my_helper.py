@@ -24,7 +24,7 @@ def load_checkpoint(filepath, gpu):
         return model, epochs, learning_rate, optimizer
     '''
     if not gpu: # we force torch to load on CPU
-        checkpoint = torch.load(filepath, map_location=lambda storage, loc: storage)#map_location='cpu')
+        checkpoint = torch.load(filepath, map_location='cpu')
     else: #nothing special to pass to torch.load as the training as been made on GPU
         checkpoint = torch.load(filepath)
     model = getattr(models, checkpoint['deep_nn_type'])(pretrained=True)

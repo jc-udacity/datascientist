@@ -16,10 +16,8 @@ parser.add_argument('--category_names', help='category name json file', default=
 # GPU mode
 parser.add_argument('--gpu', help='enable GPU mode for inference (disabled by default)', action='store_true')
 
-
 args = parser.parse_args()
-#print("toto")
-print(args.gpu)
+
 if os.path.isfile(args.image_path):
     if os.path.isfile(args.checkpoint_path):
         if os.path.isfile(args.category_names):
