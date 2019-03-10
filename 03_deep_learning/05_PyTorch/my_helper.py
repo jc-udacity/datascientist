@@ -13,16 +13,20 @@ import numpy as np
 import my_model
 from my_model import Classifier_Network
 
-def load_checkpoint(filepath):
+def load_checkpoint(filepath, gpu):
     ''' Load a previously saved model
 
         Argument:
         ---------
         filepath: full path of checkpoint file
+        gpu: boolean, if true load model on GPU, otherwise load on CPU
 
         return model, epochs, learning_rate, optimizer
     '''
-    checkpoint = torch.load(filepath, map_location='cpu')
+    if not gpu: # we force torch to load on CPU
+        checkpoint = torch.load(filepath, map_location=lambda storage, loc: storage)#map_location='cpu')
+    else: #nothing special to pass to torch.load as the training as been made on GPU
+        checkpoint = torch.load(filepath)
     model = getattr(models, checkpoint['deep_nn_type'])(pretrained=True)
 
     # Freeze parameters of the deep neural network so we don't backprop through them
@@ -41,7 +45,7 @@ def load_checkpoint(filepath):
 
     model.classifier = classifier
     model.class_to_idx = checkpoint['class_to_idx']
-    model.cpu()
+    #model.cpu()
 
     return model, epochs, learning_rate, optimizer
 

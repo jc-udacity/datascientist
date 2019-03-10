@@ -12,16 +12,21 @@ parser.add_argument('checkpoint_path', help='full path to checkpoint')
 #optional argument top_k
 parser.add_argument('--top_k', type=int, help='Top K most likely classes', default=3)
 # category to name
-parser.add_argument('--category_names', help='Category name json file', default='cat_to_name.json')
+parser.add_argument('--category_names', help='category name json file', default='cat_to_name.json')
+# GPU mode
+parser.add_argument('--gpu', help='enable GPU mode for inference (disabled by default)', action='store_true')
+
 
 args = parser.parse_args()
+#print("toto")
+print(args.gpu)
 if os.path.isfile(args.image_path):
     if os.path.isfile(args.checkpoint_path):
         if os.path.isfile(args.category_names):
             # build the model.
             #Note, that I've not changed the returned elements since they might be useful
             #in later version if I want to improve learning, sarting again from a checkpoint
-            model, epochs, learning_rate, optimizer = load_checkpoint(args.checkpoint_path)
+            model, epochs, learning_rate, optimizer = load_checkpoint(args.checkpoint_path, args.gpu)
             #print(model)
 
             # perform inference
