@@ -78,10 +78,10 @@ for param in model.parameters():
 
 classifier_input_size = model.classifier[0].in_features
 classifier_output_size = 102 # number of flower species
-classifier_hiddden_layers = [args.hidden_units]
+classifier_hidden_layers = [args.hidden_units]
 dropout = 0.5
 
-model.classifier = Classifier_Network(classifier_input_size, classifier_output_size, classifier_hiddden_layers, dropout)
+model.classifier = Classifier_Network(classifier_input_size, classifier_output_size, classifier_hidden_layers, dropout)
 #print(model)
 
 # train the deep network

@@ -85,11 +85,11 @@ def save_checkpoint(model, train_data, classifier_input_size, classifier_output_
     model.class_to_idx = train_data.class_to_idx
     checkpoint = {'input_size': classifier_input_size,
                   'output_size': classifier_output_size,
-                  'hidden_layers': classifier_hiddden_layers,
+                  'hidden_layers': classifier_hidden_layers,
                   'drop': dropout,
                   'epochs': epochs,
                   'learning_rate': learning_rate,
-                  'deep_nn_type': 'vgg16',
+                  'deep_nn_type': arch,
                   'optimizer': optimizer,
                   'class_to_idx': model.class_to_idx,
                   'classifier_state_dict': model.classifier.state_dict(),
@@ -97,6 +97,7 @@ def save_checkpoint(model, train_data, classifier_input_size, classifier_output_
                  }
     model.cpu()
     torch.save(checkpoint, 'checkpoint.pth')
+    #print(checkpoint)
 
 
 def load_checkpoint(filepath, gpu):
