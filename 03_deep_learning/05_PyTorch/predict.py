@@ -30,8 +30,9 @@ if os.path.isfile(args.image_path):
             # perform inference
             with open(args.category_names, 'r') as f:
                 cat_to_name = json.load(f)
-            probs, classes, flowers = predict(args.image_path, model, cat_to_name)
+            probs, classes, flowers = predict(args.image_path, model, cat_to_name, args.top_k)
 
+            print(len(flowers))
             # print results
             # retrieve max flower name length
             maxlen = len(max(flowers, key=len))

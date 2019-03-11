@@ -13,6 +13,92 @@ import numpy as np
 import my_model
 from my_model import Classifier_Network
 
+
+# Implement a function for the validation pass - chapter inference and validation
+def validation(model, validloader, criterion, device='cpu'):
+    test_loss = 0
+    accuracy = 0
+    for inputs, labels in validloader:
+        inputs, labels = inputs.to(device), labels.to(device)
+
+        #images.resize_(images.shape[0], 784)
+
+        output = model.forward(inputs)
+        test_loss += criterion(output, labels).item()
+
+        ps = torch.exp(output)
+        equality = (labels.data == ps.max(dim=1)[1])
+        accuracy += equality.type(torch.FloatTensor).mean()
+
+    return test_loss, accuracy
+
+
+# functions coming from what I've learned in the transfert training chapter...
+def do_deep_learning(model, trainloader, validloader, epochs, print_every, criterion, optimizer, device='cpu'):
+    epochs = epochs
+    print_every = print_every
+    steps = 0
+
+    # tell the model this is time to learn/train
+    model.train()
+
+    # change to cuda
+    model.to(device)
+
+    for e in range(epochs):
+        running_loss = 0
+        for ii, (inputs, labels) in enumerate(trainloader):
+            steps += 1
+
+            inputs, labels = inputs.to(device), labels.to(device)
+
+            optimizer.zero_grad()
+
+            # Forward and backward passes
+            outputs = model.forward(inputs)
+            loss = criterion(outputs, labels)
+            loss.backward()
+            optimizer.step()
+
+            running_loss += loss.item()
+
+            if steps % print_every == 0:
+                # Make sure network is in eval mode for inference
+                model.eval()
+
+                # Turn off gradients for validation, saves memory and computations
+                with torch.no_grad():
+                    test_loss, accuracy = validation(model, validloader, criterion, device)
+
+                    print("Epoch: {}/{}.. ".format(e+1, epochs),
+                          "Training Loss: {:.4f}.. ".format(running_loss/print_every),
+                          "Valid Loss: {:.4}.. ".format(test_loss/len(validloader)),
+                          "Valid Accuracy: {:.4f}".format(accuracy/len(validloader)))
+
+                    running_loss = 0
+
+                    #make sure training is back on
+                    model.train()
+
+
+def save_checkpoint(model, train_data, classifier_input_size, classifier_output_size, classifier_hidden_layers, dropout, epochs, learning_rate, arch, optimizer):
+    model.class_to_idx = train_data.class_to_idx
+    checkpoint = {'input_size': classifier_input_size,
+                  'output_size': classifier_output_size,
+                  'hidden_layers': classifier_hiddden_layers,
+                  'drop': dropout,
+                  'epochs': epochs,
+                  'learning_rate': learning_rate,
+                  'deep_nn_type': 'vgg16',
+                  'optimizer': optimizer,
+                  'class_to_idx': model.class_to_idx,
+                  'classifier_state_dict': model.classifier.state_dict(),
+                  #'optimizer_state_dict': optimizer.state_dict()
+                 }
+    model.cpu()
+    torch.save(checkpoint, 'checkpoint.pth')
+
+
 def load_checkpoint(filepath, gpu):
     ''' Load a previously saved model
 
@@ -24,7 +110,7 @@ def load_checkpoint(filepath, gpu):
         return model, epochs, learning_rate, optimizer
     '''
     if not gpu: # we force torch to load on CPU
-        checkpoint = torch.load(filepath, map_location='cpu')
+        checkpoint = torch.load(filepath, map_location=lambda storage, loc: storage)#map_location='cpu')
     else: #nothing special to pass to torch.load as the training as been made on GPU
         checkpoint = torch.load(filepath)
     model = getattr(models, checkpoint['deep_nn_type'])(pretrained=True)
