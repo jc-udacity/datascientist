@@ -99,4 +99,4 @@ else:
 with active_session():
     do_deep_learning(model, train_loader, valid_loader, epochs, print_every, criterion, optimizer, device)
 
-save_checkpoint(model, train_data, classifier_input_size, classifier_output_size, classifier_hidden_layers, dropout, epochs, learning_rate, args.arch, optimizer)
+save_checkpoint(model, train_data, classifier_input_size, classifier_output_size, classifier_hidden_layers, dropout, epochs, learning_rate, args.arch, optimizer, args.checkpoint_path)

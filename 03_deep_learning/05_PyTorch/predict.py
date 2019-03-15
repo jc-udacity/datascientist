@@ -10,7 +10,7 @@ parser.add_argument('image_path', help='full image path used for inference')
 # positional argument checkpoint to be used to build the model
 parser.add_argument('checkpoint_path', help='full path to checkpoint')
 #optional argument top_k
-parser.add_argument('--top_k', type=int, help='Top K most likely classes', default=3)
+parser.add_argument('--top_k', type=int, help='Top K most likely classes', default=1)
 # category to name
 parser.add_argument('--category_names', help='category name json file', default='cat_to_name.json')
 # GPU mode
@@ -32,11 +32,11 @@ if os.path.isfile(args.image_path):
                 cat_to_name = json.load(f)
             probs, classes, flowers = predict(args.image_path, model, cat_to_name, args.top_k)
 
-            print(len(flowers))
+            #print(len(flowers))
             # print results
             # retrieve max flower name length
             maxlen = len(max(flowers, key=len))
-            space = max(0, maxlen - 13 + 1)
+            space = max(1, maxlen - 13 + 1)
             print('-' * (30+space))
             print('| flower name {0:{1}} | probability |'.format('', space))
             print('-' * (30+space))

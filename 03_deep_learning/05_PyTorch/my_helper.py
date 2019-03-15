@@ -81,7 +81,7 @@ def do_deep_learning(model, trainloader, validloader, epochs, print_every, crite
                     model.train()
 
 
-def save_checkpoint(model, train_data, classifier_input_size, classifier_output_size, classifier_hidden_layers, dropout, epochs, learning_rate, arch, optimizer):
+def save_checkpoint(model, train_data, classifier_input_size, classifier_output_size, classifier_hidden_layers, dropout, epochs, learning_rate, arch, optimizer, checkpoint_path):
     model.class_to_idx = train_data.class_to_idx
     checkpoint = {'input_size': classifier_input_size,
                   'output_size': classifier_output_size,
@@ -96,7 +96,7 @@ def save_checkpoint(model, train_data, classifier_input_size, classifier_output_
                   #'optimizer_state_dict': optimizer.state_dict()
                  }
     model.cpu()
-    torch.save(checkpoint, 'checkpoint.pth')
+    torch.save(checkpoint, checkpoint_path)
     #print(checkpoint)
 
 
@@ -169,7 +169,7 @@ def process_image(img):
     return np_image
 
 
-def predict(image_path, model, cat_to_name, k=5):
+def predict(image_path, model, cat_to_name, k=1):
     ''' Predict the class (or classes) of an image using a trained deep learning model.
     '''
 
