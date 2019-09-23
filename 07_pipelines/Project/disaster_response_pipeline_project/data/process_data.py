@@ -1,16 +1,71 @@
 import sys
-
+import pandas as pd
+from sqlalchemy import create_engine
 
 def load_data(messages_filepath, categories_filepath):
-    pass
+    """ Load the data: both messages and categories.
+
+    Parameters
+    ----------
+    messages_filepath : string
+        file path for the message csv file
+    categories_filepath : string
+        file path for the categories csv file
+
+    Returns
+    -------
+    pandas dataframe
+        returns a merged pandas dataframe with messages and categories
+
+    """
+    messages = pd.read_csv(messages_filepath)
+    categories = pd.read_csv(categories_filepath)
+    return messages.merge(categories, on='id')
 
 
 def clean_data(df):
-    pass
+    """ Clean the data: split the categories and add columns with 0 or 1
+        for each categories
+
+    Parameters
+    ----------
+    df : pandas dataframe
+        The merged dataframe resulting of messages and categories files loaded
+
+    Returns
+    -------
+    Pandas dataframe
+        Returns a clean dataframe with categories in columns and 0 or 1.
+
+    """
+    categories = df['categories'].str.split(";", expand=True)
+    row = categories.iloc[0,:]
+    category_colnames = row.apply(lambda x: x[:-2])
+    categories.columns = category_colnames
+    for column in categories:
+        # set each value to be the last character of the string
+        categories[column] = categories[column].str[-1:]
+        # convert column from string to numeric
+        categories[column] = categories[column].astype(int)
+    df.drop('categories', axis=1, inplace=True)
+    df = pd.concat([df,categories], axis=1)
+    df.drop_duplicates(inplace=True)
+    return df
 
 
 def save_data(df, database_filename):
-    pass  
+    """ Save data in a SQL file.
+
+    Parameters
+    ----------
+    df : pandas dataframe
+        The dataframe to be saved in an SQL file
+    database_filename : string
+        The filename of the SQL database where data will be saved
+
+    """
+    engine = create_engine('sqlite:///{}'.format(database_filename))
+    df.to_sql('InsertTableName', engine, index=False)
 
 
 def main():
@@ -24,12 +79,12 @@ def main():
 
         print('Cleaning data...')
         df = clean_data(df)
-        
+
         print('Saving data...\n    DATABASE: {}'.format(database_filepath))
         save_data(df, database_filepath)
-        
+
         print('Cleaned data saved to database!')
-    
+
     else:
         print('Please provide the filepaths of the messages and categories '\
               'datasets as the first and second argument respectively, as '\
