@@ -109,9 +109,10 @@ def build_model():
 
 
 def evaluate_model(model, X_test, Y_test, category_names):
+    y_pred = model.fit(X_test)
     for category in range(len(category_names)):
         print('category: {}'.format(category_names[category]))
-        print(classification_report(y_test[:, category], y_pred[:, category]))
+        print(classification_report(Y_test[:, category], y_pred[:, category]))
 
 
 def save_model(model, model_filepath):
